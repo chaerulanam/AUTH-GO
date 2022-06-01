@@ -9,18 +9,20 @@ import (
 type (
 	User struct {
 		gorm.Model
-		Email          string `gorm:"size:255;index:email,unique"`
-		Username       string `gorm:"size:255;index:username,unique"`
-		PasswordHash   string `gorm:"size:255"`
-		ResetAt        time.Time
-		ResetExpire    time.Time
-		ActivateHash   string      `gorm:"size:255"`
-		Status         string      `gorm:"size:255"`
-		StatusMessage  string      `gorm:"size:255"`
-		Active         bool        `gorm:"default:0"`
-		ForcePassReset bool        `gorm:"default:0"`
-		AuthLogin      []AuthLogin `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-		AuthToken      []AuthToken `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+		Email              string `gorm:"size:255;index:email,unique"`
+		Username           string `gorm:"size:255;index:username,unique"`
+		PasswordHash       string `gorm:"size:255"`
+		ResetAt            time.Time
+		ResetExpire        time.Time
+		ActivateHash       *string              `gorm:"size:255"`
+		Status             *string              `gorm:"size:255"`
+		StatusMessage      *string              `gorm:"size:255"`
+		Active             bool                 `gorm:"default:0"`
+		ForcePassReset     bool                 `gorm:"default:0"`
+		AuthLogin          []AuthLogin          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+		AuthToken          []AuthToken          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+		AuthGroupUser      []AuthGroupUser      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+		AuthUserPermission []AuthUserPermission `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	}
 
 	AuthLogin struct {
@@ -34,11 +36,11 @@ type (
 
 	AuthToken struct {
 		// gorm.Model
-		ID           uint
-		Selector     string `gorm:"size:255"`
-		HasValidator string `gorm:"size:255"`
-		UserID       uint
-		Expire       time.Time
+		ID              uint
+		Selector        string `gorm:"size:255"`
+		HashedValidator string `gorm:"size:255"`
+		UserID          uint
+		Expire          time.Time
 	}
 
 	AuthResetAttemp struct {
@@ -62,27 +64,51 @@ type (
 
 	AuthGroup struct {
 		// gorm.Model
-		ID                  uint
-		Name                string                `gorm:"size:255"`
-		Description         string                `gorm:"size:255"`
-		AuthGroupPermission []AuthGroupPermission `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+		ID          uint32
+		Name        string `gorm:"size:255"`
+		Description string `gorm:"size:255"`
 	}
 
 	AuthPermission struct {
 		// gorm.Model
-		ID                  uint
-		Name                string                `gorm:"size:255"`
-		Description         string                `gorm:"size:255"`
-		AuthGroupPermission []AuthGroupPermission `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+		ID          uint32
+		Name        string `gorm:"size:255"`
+		Description string `gorm:"size:255"`
 	}
 
 	AuthGroupPermission struct {
 		// gorm.Model
-		ID           uint
-		GroupID      uint
-		PermissionID uint
+		ID             uint32
+		GroupID        uint32
+		PermissionID   uint32
+		AuthGroup      AuthGroup      `gorm:"foreignKey:GroupID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+		AuthPermission AuthPermission `gorm:"foreignKey:PermissionID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	}
+
+	AuthGroupUser struct {
+		// gorm.Model
+		ID        uint
+		GroupID   uint32
+		UserID    uint
+		AuthGroup AuthGroup `gorm:"foreignKey:GroupID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	}
+
+	AuthUserPermission struct {
+		// gorm.Model
+		ID             uint
+		PermissionID   uint32
+		UserID         uint
+		AuthPermission AuthPermission `gorm:"foreignKey:PermissionID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	}
+
+	Tabler interface {
+		TableName() string
 	}
 )
+
+func (User) TableName() string {
+	return "auth_users"
+}
 
 func MigrateAll(db *gorm.DB) {
 	db.AutoMigrate(&User{})
@@ -93,4 +119,6 @@ func MigrateAll(db *gorm.DB) {
 	db.AutoMigrate(&AuthGroup{})
 	db.AutoMigrate(&AuthPermission{})
 	db.AutoMigrate(&AuthGroupPermission{})
+	db.AutoMigrate(&AuthGroupUser{})
+	db.AutoMigrate(&AuthUserPermission{})
 }

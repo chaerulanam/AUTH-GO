@@ -9,4 +9,6 @@ const (
 
 	SERVER_HOST = "localhost"
 	SERVER_PORT = "8080"
+
+	AUTH_EMAIL_VERIFIKASI = false
 )

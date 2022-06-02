@@ -18,4 +18,7 @@ const (
 	SENDER_NAME   = "Bantuan <itsupport@stkipnu.ac.id>"
 	AUTH_EMAIL    = "itsupport@stkipnu.ac.id"
 	AUTH_PASSWORD = "Siji2Telu"
+
+	JWT_SECREET_KEY = "ChAErULIcHi"
+	JWT_EXPIRE      = 72
 )

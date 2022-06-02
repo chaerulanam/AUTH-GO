@@ -10,9 +10,6 @@ type AuthRepo interface {
 	FindAll() ([]models.User, error)
 	IsRegistered(email string, username string) (models.User, error)
 	Save(data models.User) (models.User, error)
-	// UserFind(id uint) (models.User, error)
-	// UserCountAllResults() ([]models.User, error)
-	// UserSave(data models.User) (models.User, error)
 }
 
 func (r *userrepo) FindAll() ([]models.User, error) {

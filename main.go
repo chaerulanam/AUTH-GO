@@ -3,15 +3,24 @@ package main
 import (
 	"auth/config"
 	"auth/handlers"
+	"auth/helper"
 	"auth/migration"
 	"auth/repositories"
 	"auth/services"
 	"fmt"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
+
+// func restricted(c echo.Context) error {
+// 	user := c.Get("user").(*jwt.Token)
+// 	claims := user.Claims.(*helper.JwtCustomClaims)
+// 	username := claims.Username
+// 	return c.String(http.StatusOK, "Welcome "+username+"!")
+// }
 
 func main() {
 
@@ -30,8 +39,15 @@ func main() {
 
 	e := echo.New()
 
+	// e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
 	e.POST("/register", authHandler.Register)
 	e.POST("/login", authHandler.Login)
+
+	// Configure middleware with the custom claims type
+
+	e.POST("/user", authHandler.User, helper.IsAuth)
 
 	e.Logger.Fatal(e.Start(":8888"))
 }

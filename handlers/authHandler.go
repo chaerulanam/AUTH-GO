@@ -26,12 +26,6 @@ var (
 	validate *validator.Validate
 )
 
-type IError struct {
-	Field string
-	Tag   string
-	Value string
-}
-
 func (h *authHandler) Register(c echo.Context) (err error) {
 
 	auth := new(requests.AuthReq)
@@ -39,12 +33,24 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 	if err = c.Bind(auth); err != nil {
 		return
 	}
-
 	id := id.New()
 	uni = ut.New(id, id)
 	validate = validator.New()
 	trans, _ := uni.GetTranslator("id")
 	id_translations.RegisterDefaultTranslations(validate, trans)
+
+	if auth.Password != auth.PasswordConfirm {
+		responsError := response.AuthResponse{
+			Password: "Password tidak sama",
+		}
+
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"email":    responsError.Email,
+			"username": responsError.Username,
+			"password": responsError.Password,
+			"status":   false,
+		})
+	}
 
 	if err = validate.Struct(auth); err != nil {
 
@@ -58,8 +64,11 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 		}
 
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"pesan":  responsError,
-			"status": false,
+			"email":    responsError.Email,
+			"username": responsError.Username,
+			"password": responsError.Password,
+			"error":    "Gagal mendaftar",
+			"status":   false,
 		})
 	}
 
@@ -82,18 +91,29 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 		}
 
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"pesan":  responsError,
-			"status": false,
+			"email":    responsError.Email,
+			"username": responsError.Username,
+			"password": responsError.Password,
+			"pesan":    "Gagal mendaftar",
+			"status":   false,
 		})
 	}
 
 	h.authService.Save(*auth)
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"pesan":  "Berhasil mendaftar",
-		"status": true,
-	})
+	responsError := response.AuthResponse{
+		Email:    auth.Email,
+		Username: auth.Username,
+		Password: "-Rahasia-",
+	}
 
+	return c.JSON(http.StatusOK, echo.Map{
+		"email":    responsError.Email,
+		"username": responsError.Username,
+		"password": responsError.Password,
+		"pesan":    "Berhasil mendaftar",
+		"status":   true,
+	})
 }
 
 func (h *authHandler) Login(c echo.Context) (err error) {

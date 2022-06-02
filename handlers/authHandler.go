@@ -47,22 +47,6 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 	id_translations.RegisterDefaultTranslations(validate, trans)
 
 	if err = validate.Struct(auth); err != nil {
-
-		// translate all error at once
-
-		// returns a map with key = namespace & value = translated error
-		// NOTICE: 2 errors are returned and you'll see something surprising
-		// translations are i18n aware!!!!
-		// eg. '10 characters' vs '1 character'
-		// fmt.Println(errs.Translate(trans))
-		// for _, err := range err.(validator.ValidationErrors) {
-		// 	var el IError
-		// 	el.Field = err.Field()
-		// 	el.Tag = err.Tag()
-		// 	el.Value = err.Param()
-		// 	errors = append(errors, &el)
-		// }
-		// return c.Status(fiber.StatusBadRequest).JSON(errors)
 		errs := err.(validator.ValidationErrors)
 		errors := errs.Translate(trans)
 
@@ -77,11 +61,11 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 		})
 	}
 
-	// authsaved, _ := h.authService.Save(*auth)
+	s, er := h.authService.Save(*auth)
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"auth": "hello",
-		// "err": err,
+		"auth": s,
+		"err":  er,
 	})
 }
 

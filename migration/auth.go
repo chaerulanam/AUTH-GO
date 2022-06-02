@@ -9,20 +9,18 @@ import (
 type (
 	User struct {
 		gorm.Model
-		Email              string `gorm:"size:255;index:email,unique"`
-		Username           string `gorm:"size:255;index:username,unique"`
-		PasswordHash       string `gorm:"size:255"`
-		ResetAt            time.Time
-		ResetExpire        time.Time
-		ActivateHash       *string              `gorm:"size:255"`
-		Status             *string              `gorm:"size:255"`
-		StatusMessage      *string              `gorm:"size:255"`
-		Active             bool                 `gorm:"default:0"`
-		ForcePassReset     bool                 `gorm:"default:0"`
-		AuthLogin          []AuthLogin          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-		AuthToken          []AuthToken          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-		AuthGroupUser      []AuthGroupUser      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-		AuthUserPermission []AuthUserPermission `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+		Email          string `gorm:"size:255;index:email,unique"`
+		Username       string `gorm:"size:255;index:username,unique"`
+		PasswordHash   string `gorm:"size:255"`
+		ResetAt        time.Time
+		ResetExpire    time.Time
+		ActivateHash   *string     `gorm:"size:255"`
+		Status         *string     `gorm:"size:255"`
+		StatusMessage  *string     `gorm:"size:255"`
+		Active         bool        `gorm:"default:0"`
+		ForcePassReset bool        `gorm:"default:0"`
+		AuthLogin      []AuthLogin `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+		AuthToken      []AuthToken `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	}
 
 	AuthLogin struct {
@@ -90,6 +88,7 @@ type (
 		ID        uint
 		GroupID   uint32
 		UserID    uint
+		User      User      `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 		AuthGroup AuthGroup `gorm:"foreignKey:GroupID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	}
 
@@ -98,6 +97,7 @@ type (
 		ID             uint
 		PermissionID   uint32
 		UserID         uint
+		User           User           `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 		AuthPermission AuthPermission `gorm:"foreignKey:PermissionID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	}
 

@@ -1,6 +1,7 @@
 package config
 
 const (
+	APP_NAME  = "AUTH-GO"
 	DB_USER   = "root"
 	DB_PASS   = ""
 	DB_NAME   = "auth"
@@ -8,7 +9,13 @@ const (
 	DB_PORT   = "3306"
 
 	SERVER_HOST = "localhost"
-	SERVER_PORT = "8080"
+	SERVER_PORT = "8888"
 
-	AUTH_EMAIL_VERIFIKASI = false
+	AUTH_EMAIL_VERIFIKASI = true
+
+	SMTP_HOST     = "srv31.niagahoster.com"
+	SMTP_PORT     = 465
+	SENDER_NAME   = "Bantuan <itsupport@stkipnu.ac.id>"
+	AUTH_EMAIL    = "itsupport@stkipnu.ac.id"
+	AUTH_PASSWORD = "Siji2Telu"
 )

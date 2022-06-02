@@ -1,11 +1,14 @@
 package helper
 
-// type jwtCustomClaims struct {
-// 	Name     string `json:"name"`
-// 	Username string `json:"username"`
-// 	Admin    bool   `json:"admin"`
-// 	jwt.StandardClaims
-// }
+import "github.com/golang-jwt/jwt"
+
+type jwtCustomClaims struct {
+	Username   string `json:"username"`
+	UserID     uint   `json:"user_id"`
+	Group      string `json:"group"`
+	Permission string `json:"permission"`
+	jwt.StandardClaims
+}
 
 // func login(c echo.Context) error {
 // 	username := c.FormValue("username")

@@ -26,6 +26,12 @@ var (
 	validate *validator.Validate
 )
 
+type IError struct {
+	Field string
+	Tag   string
+	Value string
+}
+
 func (h *authHandler) Register(c echo.Context) (err error) {
 
 	auth := new(requests.AuthReq)
@@ -99,11 +105,18 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 		})
 	}
 
-	h.authService.Save(*auth)
+	savedUser, _ := h.authService.Save(*auth)
+
+	if savedUser.ID == 0 {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"pesan":  "Internal server error",
+			"status": false,
+		})
+	}
 
 	responsError := response.AuthResponse{
-		Email:    auth.Email,
-		Username: auth.Username,
+		Email:    savedUser.Email,
+		Username: savedUser.Username,
 		Password: "-Rahasia-",
 	}
 
@@ -123,7 +136,31 @@ func (h *authHandler) Login(c echo.Context) (err error) {
 	if err = c.Bind(auth); err != nil {
 		return
 	}
+	id := id.New()
+	uni = ut.New(id, id)
+	validate = validator.New()
+	trans, _ := uni.GetTranslator("id")
+	id_translations.RegisterDefaultTranslations(validate, trans)
 
+	if err = validate.Struct(auth); err != nil {
+
+		errs := err.(validator.ValidationErrors)
+		errors := errs.Translate(trans)
+
+		responsError := response.AuthResponse{
+			Email:    errors["AuthReq.Email"],
+			Username: errors["AuthReq.Username"],
+			Password: errors["AuthReq.Password"],
+		}
+
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"email":    responsError.Email,
+			"username": responsError.Username,
+			"password": responsError.Password,
+			"error":    "Gagal mendaftar",
+			"status":   false,
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"auth": auth,
 	})

@@ -10,69 +10,69 @@ import (
 type (
 	User struct {
 		gorm.Model
-		Email          string `gorm:"size:255;index:email,unique"`
-		Username       string `gorm:"size:255;index:username,unique"`
-		PasswordHash   string `gorm:"size:255"`
+		Email          string
+		Username       string
+		PasswordHash   string
 		ResetAt        sql.NullTime
 		ResetExpire    sql.NullTime
-		ActivateHash   sql.NullString `gorm:"size:255"`
-		Status         sql.NullString `gorm:"size:255"`
-		StatusMessage  sql.NullString `gorm:"size:255"`
-		Active         bool           `gorm:"default:0"`
-		ForcePassReset bool           `gorm:"default:0"`
+		ActivateHash   sql.NullString
+		Status         sql.NullString
+		StatusMessage  sql.NullString
+		Active         bool
+		ForcePassReset bool
 	}
 
 	AuthLogin struct {
 		// gorm.Model
 		ID        uint
-		IPAddress string `gorm:"size:255"`
+		IPAddress string
 		UserID    uint
-		Date      time.Time
-		Success   int  `gorm:"default:0"`
+		Date      sql.NullTime
+		Success   int
 		User      User `gorm:"foreignKey:UserID"`
 	}
 
 	AuthToken struct {
 		// gorm.Model
 		ID           uint
-		Selector     string `gorm:"size:255"`
-		HasValidator string `gorm:"size:255"`
+		Selector     string
+		HasValidator string
 		UserID       uint
-		Expire       time.Time
+		Expire       sql.NullTime
 		User         User `gorm:"foreignKey:UserID"`
 	}
 
 	AuthResetAttemp struct {
 		// gorm.Model
 		ID        uint
-		Email     string `gorm:"size:255"`
-		IPAddress string `gorm:"size:255"`
-		UserAgent string `gorm:"size:255"`
-		Token     string `gorm:"size:255"`
+		Email     string
+		IPAddress string
+		UserAgent string
+		Token     string
 		CreatedAt time.Time
 	}
 
 	AuthActivationAttemp struct {
 		// gorm.Model
 		ID        uint
-		IPAddress string `gorm:"size:255"`
-		UserAgent string `gorm:"size:255"`
-		Token     string `gorm:"size:255"`
+		IPAddress string
+		UserAgent string
+		Token     string
 		CreatedAt time.Time
 	}
 
 	AuthGroup struct {
 		// gorm.Model
 		ID          uint32
-		Name        string `gorm:"size:255"`
-		Description string `gorm:"size:255"`
+		Name        string
+		Description string
 	}
 
 	AuthPermission struct {
 		// gorm.Model
 		ID          uint32
-		Name        string `gorm:"size:255"`
-		Description string `gorm:"size:255"`
+		Name        string
+		Description string
 	}
 
 	AuthGroupPermission struct {

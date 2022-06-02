@@ -8,6 +8,7 @@ import (
 
 type AuthRepo interface {
 	FindAll() ([]models.User, error)
+	IsRegistered(email string, username string) (models.User, error)
 	Save(data models.User) (models.User, error)
 	// UserFind(id uint) (models.User, error)
 	// UserCountAllResults() ([]models.User, error)
@@ -20,6 +21,16 @@ func (r *userrepo) FindAll() ([]models.User, error) {
 	err := r.db.Find(&User).Error
 
 	return User, err
+}
+
+func (r *userrepo) IsRegistered(email string, username string) (models.User, error) {
+
+	var User models.User
+
+	err := r.db.Where("email = ?", email).Or("username = ?", username).Find(&User).Error
+
+	return User, err
+
 }
 
 func (r *userrepo) Save(data models.User) (models.User, error) {

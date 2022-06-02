@@ -12,10 +12,16 @@ import (
 type AuthService interface {
 	FindAll() ([]models.User, error)
 	Save(data requests.AuthReq) (models.User, error)
+	IsRegistered(data requests.AuthReq) (models.User, error)
 }
 
 func (s *authservice) FindAll() ([]models.User, error) {
 	user, err := s.userrepository.FindAll()
+	return user, err
+}
+
+func (s *authservice) IsRegistered(data requests.AuthReq) (models.User, error) {
+	user, err := s.userrepository.IsRegistered(data.Email, data.Username)
 	return user, err
 }
 

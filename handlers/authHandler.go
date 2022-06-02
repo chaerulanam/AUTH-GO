@@ -47,6 +47,7 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 	id_translations.RegisterDefaultTranslations(validate, trans)
 
 	if err = validate.Struct(auth); err != nil {
+
 		errs := err.(validator.ValidationErrors)
 		errors := errs.Translate(trans)
 
@@ -57,16 +58,42 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 		}
 
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"err": responsError,
+			"pesan":  responsError,
+			"status": false,
 		})
 	}
 
-	s, er := h.authService.Save(*auth)
+	IsRegistered, _ := h.authService.IsRegistered(*auth)
+	var mailError = ""
+	var usernameError = ""
+
+	if IsRegistered.ID != 0 {
+		if IsRegistered.Email == auth.Email {
+			mailError = "Email sudah terdaftar !"
+		}
+
+		if IsRegistered.Username == auth.Username {
+			usernameError = "Username sudah terdaftar !"
+		}
+
+		responsError := response.AuthResponse{
+			Email:    mailError,
+			Username: usernameError,
+		}
+
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"pesan":  responsError,
+			"status": false,
+		})
+	}
+
+	h.authService.Save(*auth)
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"auth": s,
-		"err":  er,
+		"pesan":  "Berhasil mendaftar",
+		"status": true,
 	})
+
 }
 
 func (h *authHandler) Login(c echo.Context) (err error) {

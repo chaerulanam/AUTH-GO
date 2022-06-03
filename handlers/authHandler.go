@@ -144,8 +144,26 @@ func (h *authHandler) Login(c echo.Context) (err error) {
 	IsRegistered, _ := h.authService.IsRegisteredForLogin(*auth)
 
 	if !helper.CheckPasswordHash(auth.Password, IsRegistered.PasswordHash) {
-		return echo.ErrUnauthorized
+		b := &requests.AuthLogin{
+			IPAddress: c.RealIP(),
+			UserID:    IsRegistered.ID,
+			Success:   0,
+		}
+
+		h.authService.SaveAuthLogin(*b)
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"pesan":  "Username atau password salah",
+			"status": false,
+		})
 	}
+
+	b := &requests.AuthLogin{
+		IPAddress: c.RealIP(),
+		UserID:    IsRegistered.ID,
+		Success:   1,
+	}
+
+	h.authService.SaveAuthLogin(*b)
 
 	claims := &helper.JwtCustomClaims{
 		Username:   IsRegistered.Username,
@@ -171,6 +189,84 @@ func (h *authHandler) Login(c echo.Context) (err error) {
 	})
 }
 
+func (h *authHandler) AddGroup(c echo.Context) (err error) {
+
+	auth := new(requests.AuthGroup)
+
+	if err = c.Bind(auth); err != nil {
+		return
+	}
+
+	id := id.New()
+	uni = ut.New(id, id)
+	validate = validator.New()
+	trans, _ := uni.GetTranslator("id")
+	id_translations.RegisterDefaultTranslations(validate, trans)
+
+	if err = validate.Struct(auth); err != nil {
+
+		errs := err.(validator.ValidationErrors)
+		errors := errs.Translate(trans)
+
+		responsError := response.GroupResponse{
+			Name: errors["AuthGroup.Name"],
+		}
+
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"name":   responsError.Name,
+			"pesan":  "Gagal memasukan data group",
+			"status": false,
+		})
+	}
+
+	h.authService.AddGroup(*auth)
+
+	return c.JSON(http.StatusOK, echo.Map{
+		// "token":  t,
+		"pesan":  "Berhasil memasukan data group",
+		"status": true,
+	})
+}
+
+func (h *authHandler) AddPermission(c echo.Context) (err error) {
+
+	auth := new(requests.AuthPermission)
+
+	if err = c.Bind(auth); err != nil {
+		return
+	}
+
+	id := id.New()
+	uni = ut.New(id, id)
+	validate = validator.New()
+	trans, _ := uni.GetTranslator("id")
+	id_translations.RegisterDefaultTranslations(validate, trans)
+
+	if err = validate.Struct(auth); err != nil {
+
+		errs := err.(validator.ValidationErrors)
+		errors := errs.Translate(trans)
+
+		responsError := response.GroupResponse{
+			Name: errors["AuthGroup.Name"],
+		}
+
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"name":   responsError.Name,
+			"pesan":  "Gagal memasukan data permission",
+			"status": false,
+		})
+	}
+
+	h.authService.AddPermission(*auth)
+
+	return c.JSON(http.StatusOK, echo.Map{
+		// "token":  t,
+		"pesan":  "Berhasil memasukan data permission",
+		"status": true,
+	})
+}
+
 func (h *authHandler) User(c echo.Context) (err error) {
 
 	user := c.Get("user").(*jwt.Token)
@@ -181,3 +277,11 @@ func (h *authHandler) User(c echo.Context) (err error) {
 		"claim": username,
 	})
 }
+
+// func validMailAddress(address string) (string, bool) {
+// 	addr, err := mail.ParseAddress(address)
+// 	if err != nil {
+// 		return "", false
+// 	}
+// 	return addr.Address, true
+// }

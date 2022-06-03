@@ -20,7 +20,6 @@ type (
 		Active         bool        `gorm:"default:0"`
 		ForcePassReset bool        `gorm:"default:0"`
 		AuthLogin      []AuthLogin `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-		AuthToken      []AuthToken `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	}
 
 	AuthLogin struct {
@@ -30,15 +29,6 @@ type (
 		UserID    uint
 		Date      time.Time
 		Success   int `gorm:"default:0"`
-	}
-
-	AuthToken struct {
-		// gorm.Model
-		ID              uint
-		Selector        string `gorm:"size:255"`
-		HashedValidator string `gorm:"size:255"`
-		UserID          uint
-		Expire          time.Time
 	}
 
 	AuthResetAttemp struct {
@@ -113,7 +103,6 @@ func (User) TableName() string {
 func MigrateAll(db *gorm.DB) {
 	db.AutoMigrate(&User{})
 	db.AutoMigrate(&AuthLogin{})
-	db.AutoMigrate(&AuthToken{})
 	db.AutoMigrate(&AuthResetAttemp{})
 	db.AutoMigrate(&AuthActivationAttemp{})
 	db.AutoMigrate(&AuthGroup{})

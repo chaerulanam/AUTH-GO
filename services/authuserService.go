@@ -14,6 +14,9 @@ type AuthService interface {
 	Save(data requests.AuthReq) (models.User, error)
 	IsRegistered(data requests.AuthReq) (models.User, error)
 	IsRegisteredForLogin(data requests.AuthLogin) (models.User, error)
+	SaveAuthLogin(data requests.AuthLogin) (models.AuthLogin, error)
+	AddGroup(data requests.AuthGroup) (models.AuthGroup, error)
+	AddPermission(data requests.AuthPermission) (models.AuthPermission, error)
 }
 
 func (s *authservice) FindAll() ([]models.User, error) {
@@ -62,6 +65,40 @@ func (s *authservice) Save(data requests.AuthReq) (models.User, error) {
 
 	user, err := s.userrepository.Save(userModel)
 	return user, err
+}
+
+func (s *authservice) SaveAuthLogin(data requests.AuthLogin) (models.AuthLogin, error) {
+
+	authloginModel := models.AuthLogin{
+		IPAddress: data.IPAddress,
+		UserID:    data.UserID,
+		Success:   data.Success,
+	}
+
+	user, err := s.userrepository.SaveAuthLogin(authloginModel)
+	return user, err
+}
+
+func (s *authservice) AddGroup(data requests.AuthGroup) (models.AuthGroup, error) {
+
+	authgroupModel := models.AuthGroup{
+		Name:        data.Name,
+		Description: data.Description,
+	}
+
+	_data, err := s.userrepository.AddGroup(authgroupModel)
+	return _data, err
+}
+
+func (s *authservice) AddPermission(data requests.AuthPermission) (models.AuthPermission, error) {
+
+	authpermissionModel := models.AuthPermission{
+		Name:        data.Name,
+		Description: data.Description,
+	}
+
+	_data, err := s.userrepository.AddPermission(authpermissionModel)
+	return _data, err
 }
 
 type authservice struct {

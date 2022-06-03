@@ -27,7 +27,7 @@ type (
 		ID        uint
 		IPAddress string
 		UserID    uint
-		Date      sql.NullTime
+		CreatedAt time.Time `gorm:"column:Date"`
 		Success   int
 		User      User `gorm:"foreignKey:UserID"`
 	}
@@ -108,9 +108,5 @@ type (
 )
 
 func (User) TableName() string {
-	return "auth_users"
-}
-
-func (AuthLogin) TableName() string {
 	return "auth_users"
 }

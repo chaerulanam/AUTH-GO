@@ -9,8 +9,21 @@ type (
 	}
 
 	AuthLogin struct {
-		Email    string `json:"email"`
-		Username string `json:"username"`
-		Password string `json:"password"`
+		Email     string `json:"email"`
+		Username  string `json:"username"`
+		Password  string `json:"password"`
+		IPAddress string
+		UserID    uint
+		Success   int
+	}
+
+	AuthGroup struct {
+		Name        string `json:"name" validate:"required"`
+		Description string `json:"description"`
+	}
+
+	AuthPermission struct {
+		Name        string `json:"name" validate:"required"`
+		Description string `json:"description"`
 	}
 )

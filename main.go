@@ -42,12 +42,17 @@ func main() {
 	// e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.POST("/register", authHandler.Register)
-	e.POST("/login", authHandler.Login)
+	v1 := e.Group("/v1")
+
+	v1.POST("/register", authHandler.Register)
+	v1.POST("/login", authHandler.Login)
 
 	// Configure middleware with the custom claims type
 
-	e.POST("/user", authHandler.User, helper.IsAuth)
+	p := v1.Group("/app")
+
+	p.POST("/group", authHandler.AddGroup, helper.IsAuth)
+	p.POST("/permission", authHandler.AddPermission, helper.IsAuth)
 
 	e.Logger.Fatal(e.Start(":8888"))
 }

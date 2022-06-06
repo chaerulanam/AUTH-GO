@@ -13,13 +13,13 @@ type AuthRepo interface {
 	SaveAuthLogin(data models.AuthLogin) (models.AuthLogin, error)
 	AddGroup(data models.AuthGroup) (models.AuthGroup, error)
 	AddPermission(data models.AuthPermission) (models.AuthPermission, error)
+	GetGroupId(data string) (models.AuthGroup, error)
 }
 
 func (r *userrepo) FindAll() ([]models.User, error) {
 	var User []models.User
 
-	err := r.db.Find(&User).Error
-
+	err := r.db.Preload("AuthGroupUser.AuthGroup").Find(&User).Error
 	return User, err
 }
 
@@ -51,6 +51,16 @@ func (r *userrepo) AddGroup(data models.AuthGroup) (models.AuthGroup, error) {
 func (r *userrepo) AddPermission(data models.AuthPermission) (models.AuthPermission, error) {
 	err := r.db.Create(&data).Error
 	return data, err
+}
+
+func (r *userrepo) GetGroupId(data string) (models.AuthGroup, error) {
+
+	var _data models.AuthGroup
+
+	err := r.db.Where("name = ?", data).Find(&_data).Error
+
+	return _data, err
+
 }
 
 type userrepo struct {

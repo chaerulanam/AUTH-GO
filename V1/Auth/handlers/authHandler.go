@@ -1,11 +1,10 @@
 package handlers
 
 import (
+	"auth/V1/Auth/dto"
+	"auth/V1/Auth/services"
 	"auth/config"
 	"auth/helper"
-	"auth/requests"
-	"auth/response"
-	"auth/services"
 	"net/http"
 	"time"
 
@@ -38,7 +37,7 @@ type IError struct {
 
 func (h *authHandler) Register(c echo.Context) (err error) {
 
-	auth := new(requests.AuthReq)
+	auth := new(dto.AuthRegReq)
 
 	if err = c.Bind(auth); err != nil {
 		return
@@ -50,7 +49,7 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 	id_translations.RegisterDefaultTranslations(validate, trans)
 
 	if auth.Password != auth.PasswordConfirm {
-		responsError := response.AuthResponse{
+		responsError := dto.AuthResponse{
 			Password: "Password tidak sama",
 		}
 
@@ -67,7 +66,7 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 		errs := err.(validator.ValidationErrors)
 		errors := errs.Translate(trans)
 
-		responsError := response.AuthResponse{
+		responsError := dto.AuthResponse{
 			Email:    errors["AuthReq.Email"],
 			Username: errors["AuthReq.Username"],
 			Password: errors["AuthReq.Password"],
@@ -95,7 +94,7 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 			usernameError = "Username sudah terdaftar !"
 		}
 
-		responsError := response.AuthResponse{
+		responsError := dto.AuthResponse{
 			Email:    mailError,
 			Username: usernameError,
 		}
@@ -118,7 +117,7 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 		})
 	}
 
-	responsError := response.AuthResponse{
+	responsError := dto.AuthResponse{
 		Email:    savedUser.Email,
 		Username: savedUser.Username,
 		Password: "-Rahasia-",
@@ -135,7 +134,7 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 
 func (h *authHandler) Login(c echo.Context) (err error) {
 
-	auth := new(requests.AuthLogin)
+	auth := new(dto.AuthLoginReq)
 
 	if err = c.Bind(auth); err != nil {
 		return
@@ -144,7 +143,7 @@ func (h *authHandler) Login(c echo.Context) (err error) {
 	IsRegistered, _ := h.authService.IsRegisteredForLogin(*auth)
 
 	if !helper.CheckPasswordHash(auth.Password, IsRegistered.PasswordHash) {
-		b := &requests.AuthLogin{
+		b := &dto.AuthLoginReq{
 			IPAddress: c.RealIP(),
 			UserID:    IsRegistered.ID,
 			Success:   0,
@@ -157,7 +156,7 @@ func (h *authHandler) Login(c echo.Context) (err error) {
 		})
 	}
 
-	b := &requests.AuthLogin{
+	b := &dto.AuthLoginReq{
 		IPAddress: c.RealIP(),
 		UserID:    IsRegistered.ID,
 		Success:   1,
@@ -191,7 +190,7 @@ func (h *authHandler) Login(c echo.Context) (err error) {
 
 func (h *authHandler) AddGroup(c echo.Context) (err error) {
 
-	auth := new(requests.AuthGroup)
+	auth := new(dto.AuthGroupReq)
 
 	if err = c.Bind(auth); err != nil {
 		return
@@ -208,7 +207,7 @@ func (h *authHandler) AddGroup(c echo.Context) (err error) {
 		errs := err.(validator.ValidationErrors)
 		errors := errs.Translate(trans)
 
-		responsError := response.GroupResponse{
+		responsError := dto.GroupResponse{
 			Name: errors["AuthGroup.Name"],
 		}
 
@@ -230,7 +229,7 @@ func (h *authHandler) AddGroup(c echo.Context) (err error) {
 
 func (h *authHandler) AddPermission(c echo.Context) (err error) {
 
-	auth := new(requests.AuthPermission)
+	auth := new(dto.AuthPermissionReq)
 
 	if err = c.Bind(auth); err != nil {
 		return
@@ -247,7 +246,7 @@ func (h *authHandler) AddPermission(c echo.Context) (err error) {
 		errs := err.(validator.ValidationErrors)
 		errors := errs.Translate(trans)
 
-		responsError := response.GroupResponse{
+		responsError := dto.GroupResponse{
 			Name: errors["AuthGroup.Name"],
 		}
 
@@ -267,14 +266,28 @@ func (h *authHandler) AddPermission(c echo.Context) (err error) {
 	})
 }
 
-func (h *authHandler) User(c echo.Context) (err error) {
+func (h *authHandler) GetUsers(c echo.Context) (err error) {
+	users, _ := h.authService.FindAll()
 
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(*helper.JwtCustomClaims)
-	username := claims.Username
+	var res []*dto.UserResponse
+
+	for _, user := range users {
+		var el dto.UserResponse
+		el.ID = user.ID
+		el.Username = user.Username
+		el.Email = user.Email
+		var al []string
+		for _, name := range user.AuthGroupUser {
+			al = append(al, name.AuthGroup.Name)
+		}
+		el.Group = al
+		res = append(res, &el)
+	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"claim": username,
+		"list_data": res,
+		"pesan":     "Berhasil mendapatkan data user",
+		"status":    true,
 	})
 }
 

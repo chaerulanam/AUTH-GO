@@ -1,22 +1,22 @@
 package services
 
 import (
+	"auth/V1/Auth/dto"
+	"auth/V1/Auth/repositories"
 	"auth/config"
 	"auth/helper"
 	"auth/models"
-	"auth/repositories"
-	"auth/requests"
 	"database/sql"
 )
 
 type AuthService interface {
 	FindAll() ([]models.User, error)
-	Save(data requests.AuthReq) (models.User, error)
-	IsRegistered(data requests.AuthReq) (models.User, error)
-	IsRegisteredForLogin(data requests.AuthLogin) (models.User, error)
-	SaveAuthLogin(data requests.AuthLogin) (models.AuthLogin, error)
-	AddGroup(data requests.AuthGroup) (models.AuthGroup, error)
-	AddPermission(data requests.AuthPermission) (models.AuthPermission, error)
+	Save(data dto.AuthRegReq) (models.User, error)
+	IsRegistered(data dto.AuthRegReq) (models.User, error)
+	IsRegisteredForLogin(data dto.AuthLoginReq) (models.User, error)
+	SaveAuthLogin(data dto.AuthLoginReq) (models.AuthLogin, error)
+	AddGroup(data dto.AuthGroupReq) (models.AuthGroup, error)
+	AddPermission(data dto.AuthPermissionReq) (models.AuthPermission, error)
 }
 
 func (s *authservice) FindAll() ([]models.User, error) {
@@ -24,17 +24,17 @@ func (s *authservice) FindAll() ([]models.User, error) {
 	return user, err
 }
 
-func (s *authservice) IsRegistered(data requests.AuthReq) (models.User, error) {
+func (s *authservice) IsRegistered(data dto.AuthRegReq) (models.User, error) {
 	user, err := s.userrepository.IsRegistered(data.Email, data.Username)
 	return user, err
 }
 
-func (s *authservice) IsRegisteredForLogin(data requests.AuthLogin) (models.User, error) {
+func (s *authservice) IsRegisteredForLogin(data dto.AuthLoginReq) (models.User, error) {
 	user, err := s.userrepository.IsRegistered(data.Email, data.Username)
 	return user, err
 }
 
-func (s *authservice) Save(data requests.AuthReq) (models.User, error) {
+func (s *authservice) Save(data dto.AuthRegReq) (models.User, error) {
 
 	passwordHash, _ := helper.HashPassword(data.Password)
 	var activatehas = sql.NullString{}
@@ -67,7 +67,7 @@ func (s *authservice) Save(data requests.AuthReq) (models.User, error) {
 	return user, err
 }
 
-func (s *authservice) SaveAuthLogin(data requests.AuthLogin) (models.AuthLogin, error) {
+func (s *authservice) SaveAuthLogin(data dto.AuthLoginReq) (models.AuthLogin, error) {
 
 	authloginModel := models.AuthLogin{
 		IPAddress: data.IPAddress,
@@ -79,7 +79,7 @@ func (s *authservice) SaveAuthLogin(data requests.AuthLogin) (models.AuthLogin, 
 	return user, err
 }
 
-func (s *authservice) AddGroup(data requests.AuthGroup) (models.AuthGroup, error) {
+func (s *authservice) AddGroup(data dto.AuthGroupReq) (models.AuthGroup, error) {
 
 	authgroupModel := models.AuthGroup{
 		Name:        data.Name,
@@ -90,7 +90,7 @@ func (s *authservice) AddGroup(data requests.AuthGroup) (models.AuthGroup, error
 	return _data, err
 }
 
-func (s *authservice) AddPermission(data requests.AuthPermission) (models.AuthPermission, error) {
+func (s *authservice) AddPermission(data dto.AuthPermissionReq) (models.AuthPermission, error) {
 
 	authpermissionModel := models.AuthPermission{
 		Name:        data.Name,

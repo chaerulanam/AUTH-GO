@@ -20,6 +20,7 @@ type (
 		StatusMessage  sql.NullString
 		Active         bool
 		ForcePassReset bool
+		AuthGroupUser  []AuthGroupUser
 	}
 
 	AuthLogin struct {
@@ -68,6 +69,14 @@ type (
 		Description string
 	}
 
+	AuthGroupUser struct {
+		// gorm.Model
+		ID        uint
+		GroupID   uint32
+		UserID    uint
+		AuthGroup AuthGroup `gorm:"foreignKey:GroupID"`
+	}
+
 	AuthPermission struct {
 		// gorm.Model
 		ID          uint32
@@ -82,15 +91,6 @@ type (
 		PermissionID   uint32
 		AuthGroup      AuthGroup      `gorm:"foreignKey:GroupID"`
 		AuthPermission AuthPermission `gorm:"foreignKey:PermissionID"`
-	}
-
-	AuthGroupUser struct {
-		// gorm.Model
-		ID        uint
-		GroupID   uint32
-		UserID    uint
-		AuthGroup AuthGroup `gorm:"foreignKey:GroupID"`
-		User      User      `gorm:"foreignKey:UserID"`
 	}
 
 	AuthUserPermission struct {

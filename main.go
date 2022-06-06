@@ -1,12 +1,12 @@
 package main
 
 import (
+	authHandlers "auth/V1/Auth/handlers"
+	authRepo "auth/V1/Auth/repositories"
+	authServices "auth/V1/Auth/services"
 	"auth/config"
-	"auth/handlers"
 	"auth/helper"
 	"auth/migration"
-	"auth/repositories"
-	"auth/services"
 	"fmt"
 
 	"github.com/labstack/echo/v4"
@@ -33,9 +33,9 @@ func main() {
 
 	migration.MigrateAll(db)
 
-	userRepo := repositories.UserRepository(db)
-	authService := services.AuthServ(userRepo)
-	authHandler := handlers.AuthHandler(authService)
+	userRepo := authRepo.UserRepository(db)
+	authService := authServices.AuthServ(userRepo)
+	authHandler := authHandlers.AuthHandler(authService)
 
 	e := echo.New()
 
@@ -51,6 +51,7 @@ func main() {
 
 	p := v1.Group("/app")
 
+	p.GET("/users", authHandler.GetUsers, helper.IsAuth)
 	p.POST("/group", authHandler.AddGroup, helper.IsAuth)
 	p.POST("/permission", authHandler.AddPermission, helper.IsAuth)
 

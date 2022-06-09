@@ -5,6 +5,7 @@ import (
 	"auth/V1/Auth/services"
 	"auth/config"
 	"auth/helper"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -267,15 +268,32 @@ func (h *authHandler) AddPermission(c echo.Context) (err error) {
 }
 
 func (h *authHandler) GetUsers(c echo.Context) (err error) {
-	users, _ := h.authService.FindAll()
+
+	// fmt.Println("Ofset : ", c.QueryParam("start"))
+
+	// fmt.Println(c.FormValue("order[0][column]"))
+	// fmt.Println(c.FormValue("order[0][dir]"))
+
+	auth := new(dto.DatatablesReq)
+
+	if err = c.Bind(auth); err != nil {
+		return
+	}
+
+	fmt.Println(auth)
+
+	// users, _ := h.authService.FindAll()
+	q, users, _ := h.authService.Datatables(*auth)
 
 	var res []*dto.UserResponse
-
+	var i uint
 	for _, user := range users {
+		i++
 		var el dto.UserResponse
-		el.ID = user.ID
+		el.ID = i
 		el.Username = user.Username
 		el.Email = user.Email
+		el.Active = user.Active
 		var al []string
 		for _, name := range user.AuthGroupUser {
 			al = append(al, name.AuthGroup.Name)
@@ -285,9 +303,13 @@ func (h *authHandler) GetUsers(c echo.Context) (err error) {
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"list_data": res,
-		"pesan":     "Berhasil mendapatkan data user",
-		"status":    true,
+		"data":            res,
+		"draw":            auth.Draw,
+		"recordsFiltered": q,
+		"recordsTotal":    11,
+		"username":        "Berhasil mendapatkan data user",
+		"email":           "hello",
+		"active":          true,
 	})
 }
 

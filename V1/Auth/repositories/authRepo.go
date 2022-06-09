@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"auth/V1/Auth/dto"
 	"auth/models"
 
 	"gorm.io/gorm"
@@ -8,12 +9,15 @@ import (
 
 type AuthRepo interface {
 	FindAll() ([]models.User, error)
-	IsRegistered(email string, username string) (models.User, error)
+	IsRegistered(data models.User) (models.User, error)
 	Save(data models.User) (models.User, error)
 	SaveAuthLogin(data models.AuthLogin) (models.AuthLogin, error)
 	AddGroup(data models.AuthGroup) (models.AuthGroup, error)
 	AddPermission(data models.AuthPermission) (models.AuthPermission, error)
 	GetGroupId(data string) (models.AuthGroup, error)
+	CountUsers() (int64, error)
+	CountUserBySearch(data models.User) (int64, error)
+	DatatablesFind(data dto.DatatablesReq) ([]models.User, error)
 }
 
 func (r *userrepo) FindAll() ([]models.User, error) {
@@ -23,11 +27,11 @@ func (r *userrepo) FindAll() ([]models.User, error) {
 	return User, err
 }
 
-func (r *userrepo) IsRegistered(email string, username string) (models.User, error) {
+func (r *userrepo) IsRegistered(data models.User) (models.User, error) {
 
 	var User models.User
 
-	err := r.db.Where("email = ?", email).Or("username = ?", username).Find(&User).Error
+	err := r.db.Where("email = ?", data.Email).Or("username = ?", data.Username).Find(&User).Error
 
 	return User, err
 
@@ -61,6 +65,30 @@ func (r *userrepo) GetGroupId(data string) (models.AuthGroup, error) {
 
 	return _data, err
 
+}
+
+func (r *userrepo) CountUsers() (int64, error) {
+	var count int64
+	var User []models.User
+
+	err := r.db.Model(&User).Count(&count).Error
+	return count, err
+}
+
+func (r *userrepo) CountUserBySearch(data models.User) (int64, error) {
+	var count int64
+	var User []models.User
+
+	err := r.db.Model(&User).Where("username = LIKE ?", data.Username).Or("email = LIKE ?", data.Email).Count(&count).Error
+	return count, err
+}
+
+func (r *userrepo) DatatablesFind(data dto.DatatablesReq) ([]models.User, error) {
+	var User []models.User
+	var column = [4]string{"id", "username", "email"}
+
+	err := r.db.Preload("AuthGroupUser.AuthGroup").Order(column[data.Order0Column] + " " + data.Order0Dir).Limit(data.Length).Offset(data.Start).Find(&User).Error
+	return User, err
 }
 
 type userrepo struct {

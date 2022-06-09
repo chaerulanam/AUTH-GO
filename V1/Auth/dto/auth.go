@@ -26,14 +26,23 @@ type (
 		Name        string `json:"name" validate:"required"`
 		Description string `json:"description"`
 	}
+
+	DatatablesReq struct {
+		Length       int    `form:"length"`
+		Draw         int    `form:"draw"`
+		Start        int    `form:"start"`
+		Order0Column int    `form:"order[0][column]"`
+		Order0Dir    string `form:"order[0][dir]"`
+		SearchValue  string `form:"search[value]"`
+	}
 )
 
 type (
 	UserResponse struct {
-		ID       uint        `json:"id"`
+		ID       uint        `json:"no"`
 		Email    string      `json:"email"`
 		Username string      `json:"username"`
-		Active   bool        `json:"active"`
+		Active   bool        `json:"aksi"`
 		Group    interface{} `json:"role"`
 	}
 

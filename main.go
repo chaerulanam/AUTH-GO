@@ -51,7 +51,7 @@ func main() {
 
 	p := v1.Group("/app")
 
-	p.GET("/users", authHandler.GetUsers, helper.IsAuth)
+	p.POST("/users", authHandler.GetUsers)
 	p.POST("/group", authHandler.AddGroup, helper.IsAuth)
 	p.POST("/permission", authHandler.AddPermission, helper.IsAuth)
 

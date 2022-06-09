@@ -17,6 +17,7 @@ type AuthService interface {
 	SaveAuthLogin(data dto.AuthLoginReq) (models.AuthLogin, error)
 	AddGroup(data dto.AuthGroupReq) (models.AuthGroup, error)
 	AddPermission(data dto.AuthPermissionReq) (models.AuthPermission, error)
+	Datatables(data dto.DatatablesReq) (int64, []models.User, error)
 }
 
 func (s *authservice) FindAll() ([]models.User, error) {
@@ -25,12 +26,22 @@ func (s *authservice) FindAll() ([]models.User, error) {
 }
 
 func (s *authservice) IsRegistered(data dto.AuthRegReq) (models.User, error) {
-	user, err := s.userrepository.IsRegistered(data.Email, data.Username)
+
+	userModel := models.User{
+		Username: data.Username,
+		Email:    data.Email,
+	}
+
+	user, err := s.userrepository.IsRegistered(userModel)
 	return user, err
 }
 
 func (s *authservice) IsRegisteredForLogin(data dto.AuthLoginReq) (models.User, error) {
-	user, err := s.userrepository.IsRegistered(data.Email, data.Username)
+	userModel := models.User{
+		Username: data.Username,
+		Email:    data.Email,
+	}
+	user, err := s.userrepository.IsRegistered(userModel)
 	return user, err
 }
 
@@ -99,6 +110,13 @@ func (s *authservice) AddPermission(data dto.AuthPermissionReq) (models.AuthPerm
 
 	_data, err := s.userrepository.AddPermission(authpermissionModel)
 	return _data, err
+}
+
+func (s *authservice) Datatables(data dto.DatatablesReq) (int64, []models.User, error) {
+	// err := db.Model(&User).Count(&count).Error
+	count, _ := s.userrepository.CountUsers()
+	user, err := s.userrepository.DatatablesFind(data)
+	return count, user, err
 }
 
 type authservice struct {

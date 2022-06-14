@@ -283,7 +283,7 @@ func (h *authHandler) GetUsers(c echo.Context) (err error) {
 	fmt.Println(auth)
 
 	// users, _ := h.authService.FindAll()
-	q, users, _ := h.authService.Datatables(*auth)
+	allCount, countFiltered, users, _ := h.authService.Datatables(*auth)
 
 	var res []*dto.UserResponse
 	var i uint
@@ -302,13 +302,22 @@ func (h *authHandler) GetUsers(c echo.Context) (err error) {
 		res = append(res, &el)
 	}
 
+	if len(res) > 0 {
+		return c.JSON(http.StatusOK, echo.Map{
+			"data":            res,
+			"draw":            auth.Draw,
+			"recordsFiltered": countFiltered,
+			"recordsTotal":    allCount,
+			"username":        "Berhasil mendapatkan data user",
+			"active":          true,
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
-		"data":            res,
-		"draw":            auth.Draw,
-		"recordsFiltered": q,
-		"recordsTotal":    11,
-		"username":        "Berhasil mendapatkan data user",
-		"email":           "hello",
+		"data":            "",
+		"draw":            0,
+		"recordsFiltered": 0,
+		"recordsTotal":    0,
+		"username":        "Gagal mendapatkan data",
 		"active":          true,
 	})
 }

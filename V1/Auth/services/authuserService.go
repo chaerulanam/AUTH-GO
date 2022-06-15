@@ -18,6 +18,19 @@ type AuthService interface {
 	AddGroup(data dto.AuthGroupReq) (models.AuthGroup, error)
 	AddPermission(data dto.AuthPermissionReq) (models.AuthPermission, error)
 	Datatables(data dto.DatatablesReq) (int64, int64, []models.User, error)
+	AddUserToGroup(user_id uint, name string) models.AuthGroupUser
+}
+
+func (s *authservice) AddUserToGroup(user_id uint, name string) models.AuthGroupUser {
+	group, _ := s.userrepository.FindGroupId(name)
+
+	b := models.AuthGroupUser{
+		UserID:  user_id,
+		GroupID: group.ID,
+	}
+
+	data, _ := s.userrepository.AddUserToGroup(b)
+	return data
 }
 
 func (s *authservice) FindAll() ([]models.User, error) {

@@ -104,6 +104,10 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 
 	savedUser, _ := h.authService.Save(*auth)
 
+	if len(config.DEFAULT_GROUP_NEW_USER) > 0 {
+		h.authService.AddUserToGroup(savedUser.ID, config.DEFAULT_GROUP_NEW_USER)
+	}
+
 	if savedUser.ID == 0 {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"pesan":  "Internal server error",

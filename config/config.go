@@ -11,7 +11,8 @@ const (
 	SERVER_HOST = "localhost"
 	SERVER_PORT = "8888"
 
-	AUTH_EMAIL_VERIFIKASI = false
+	AUTH_EMAIL_VERIFIKASI  = false
+	DEFAULT_GROUP_NEW_USER = ""
 
 	SMTP_HOST     = "srv31.niagahoster.com"
 	SMTP_PORT     = 465

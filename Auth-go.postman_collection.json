@@ -1,0 +1,111 @@
+{
+	"info": {
+		"_postman_id": "54d842dc-127c-4401-a2d0-f4844c64a3b2",
+		"name": "Auth-go",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "8779831"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\" : \"email1@gmail.com\",\r\n    \"password\": \"yjftyjjhfghj\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8888/v1/login",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"v1",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\" : \"email1@gmail.com\",\r\n    \"username\" : \"email14\",\r\n    \"password\": \"yjftyjjhfghj\",\r\n    \"password_confirm\": \"yjftyjjhfghj\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8888/v1/register",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"v1",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add-Group",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImVtYWlsMTQiLCJ1c2VyX2lkIjoxLCJncm91cCI6ImFkbWluIiwicGVybWlzc2lvbiI6IkZ1bGwgQ29udHJvbGwiLCJleHAiOjE2NTQ0OTc5NDJ9.ZHAV-GqnqTS3H7BSHNWffCKe7th3zepX1pl5hKKcHmc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"admin\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8888/auth-group",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"auth-group"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All users",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}

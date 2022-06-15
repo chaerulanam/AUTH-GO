@@ -80,7 +80,7 @@ func (r *userrepo) CountUserBySearch(data dto.DatatablesReq) (int64, error) {
 	var count int64
 	var User []models.User
 
-	err := r.db.Model(&User).Where("Username LIKE ?", data.SearchValue).Or("Email LIKE ?", data.SearchValue).Count(&count).Error
+	err := r.db.Model(&User).Where("Username LIKE ?", "%"+data.SearchValue+"%").Or("Email LIKE ?", "%"+data.SearchValue+"%").Count(&count).Error
 	return count, err
 }
 
@@ -96,7 +96,7 @@ func (r *userrepo) DatatablesSearch(data dto.DatatablesReq) ([]models.User, erro
 	var User []models.User
 	var column = [4]string{"id", "username", "email"}
 
-	err := r.db.Debug().Preload("AuthGroupUser.AuthGroup").Where("Username LIKE ?", data.SearchValue).Or("Email LIKE ?", data.SearchValue).Order(column[data.Order0Column] + " " + data.Order0Dir).Limit(data.Length).Offset(data.Start).Find(&User).Error
+	err := r.db.Preload("AuthGroupUser.AuthGroup").Where("Username LIKE ?", "%"+data.SearchValue+"%").Or("Email LIKE ?", "%"+data.SearchValue+"%").Order(column[data.Order0Column] + " " + data.Order0Dir).Limit(data.Length).Offset(data.Start).Find(&User).Error
 	return User, err
 }
 

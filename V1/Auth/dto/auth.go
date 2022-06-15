@@ -42,8 +42,9 @@ type (
 		ID       uint        `json:"no"`
 		Email    string      `json:"email"`
 		Username string      `json:"username"`
-		Active   bool        `json:"aksi"`
+		Active   bool        `json:"status"`
 		Group    interface{} `json:"role"`
+		UserID   uint        `json:"user_id"`
 	}
 
 	AuthResponse struct {

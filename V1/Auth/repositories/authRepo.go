@@ -17,6 +17,7 @@ type AuthRepo interface {
 	GetGroupId(data string) (models.AuthGroup, error)
 	FindGroupId(name string) (models.AuthGroup, error)
 	AddUserToGroup(data models.AuthGroupUser) (models.AuthGroupUser, error)
+	RemoveUserFromGroup(data models.AuthGroupUser) (models.AuthGroupUser, error)
 	CountUsers() (int64, error)
 	CountUserBySearch(data dto.DatatablesReq) (int64, error)
 	DatatablesFind(data dto.DatatablesReq) ([]models.User, error)
@@ -78,6 +79,11 @@ func (r *userrepo) FindGroupId(name string) (models.AuthGroup, error) {
 
 func (r *userrepo) AddUserToGroup(data models.AuthGroupUser) (models.AuthGroupUser, error) {
 	err := r.db.Create(&data).Error
+	return data, err
+}
+
+func (r *userrepo) RemoveUserFromGroup(data models.AuthGroupUser) (models.AuthGroupUser, error) {
+	err := r.db.Where("user_id = ?", data.UserID).Where("group_id = ?", data.GroupID).Delete(&data).Error
 	return data, err
 }
 

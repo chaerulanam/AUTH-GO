@@ -5,7 +5,6 @@ import (
 	"auth/V1/Auth/services"
 	"auth/config"
 	"auth/helper"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -29,12 +28,6 @@ var (
 	uni      *ut.UniversalTranslator
 	validate *validator.Validate
 )
-
-type IError struct {
-	Field string
-	Tag   string
-	Value string
-}
 
 func (h *authHandler) Register(c echo.Context) (err error) {
 
@@ -68,9 +61,9 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 		errors := errs.Translate(trans)
 
 		responsError := dto.AuthResponse{
-			Email:    errors["AuthReq.Email"],
-			Username: errors["AuthReq.Username"],
-			Password: errors["AuthReq.Password"],
+			Email:    errors["AuthRegReq.Email"],
+			Username: errors["AuthRegReq.Username"],
+			Password: errors["AuthRegReq.Password"],
 		}
 
 		return c.JSON(http.StatusBadRequest, echo.Map{
@@ -144,15 +137,22 @@ func (h *authHandler) Login(c echo.Context) (err error) {
 	IsRegistered, _ := h.authService.IsRegisteredForLogin(*auth)
 
 	if !helper.CheckPasswordHash(auth.Password, IsRegistered.PasswordHash) {
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"pesan":  "Username atau password salah",
+			"status": false,
+		})
+	}
+
+	if !IsRegistered.Active {
 		b := &dto.AuthLoginReq{
 			IPAddress: c.RealIP(),
 			UserID:    IsRegistered.ID,
 			Success:   0,
 		}
-
 		h.authService.SaveAuthLogin(*b)
+
 		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"pesan":  "Username atau password salah",
+			"pesan":  "Akun belum diaktifkan",
 			"status": false,
 		})
 	}
@@ -269,21 +269,13 @@ func (h *authHandler) AddPermission(c echo.Context) (err error) {
 
 func (h *authHandler) GetUsers(c echo.Context) (err error) {
 
-	// fmt.Println("Ofset : ", c.QueryParam("start"))
-
-	// fmt.Println(c.FormValue("order[0][column]"))
-	// fmt.Println(c.FormValue("order[0][dir]"))
-
 	auth := new(dto.DatatablesReq)
 
 	if err = c.Bind(auth); err != nil {
 		return
 	}
-
-	fmt.Println(auth)
-
 	// users, _ := h.authService.FindAll()
-	q, users, _ := h.authService.Datatables(*auth)
+	allCount, countFiltered, users, _ := h.authService.Datatables(*auth)
 
 	var res []*dto.UserResponse
 	var i uint
@@ -299,24 +291,26 @@ func (h *authHandler) GetUsers(c echo.Context) (err error) {
 			al = append(al, name.AuthGroup.Name)
 		}
 		el.Group = al
+		el.UserID = user.ID
 		res = append(res, &el)
 	}
 
+	if len(res) > 0 {
+		return c.JSON(http.StatusOK, echo.Map{
+			"data":            res,
+			"draw":            auth.Draw,
+			"recordsFiltered": countFiltered,
+			"recordsTotal":    allCount,
+			"pesan":           "Berhasil mendapatkan data",
+			"status":          true,
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
-		"data":            res,
+		"data":            "",
 		"draw":            auth.Draw,
-		"recordsFiltered": q,
-		"recordsTotal":    11,
-		"username":        "Berhasil mendapatkan data user",
-		"email":           "hello",
-		"active":          true,
+		"recordsFiltered": 0,
+		"recordsTotal":    0,
+		"pesan":           "Gagal mendapatkan data",
+		"status":          true,
 	})
 }
-
-// func validMailAddress(address string) (string, bool) {
-// 	addr, err := mail.ParseAddress(address)
-// 	if err != nil {
-// 		return "", false
-// 	}
-// 	return addr.Address, true
-// }

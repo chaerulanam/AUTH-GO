@@ -16,8 +16,9 @@ type AuthRepo interface {
 	AddPermission(data models.AuthPermission) (models.AuthPermission, error)
 	GetGroupId(data string) (models.AuthGroup, error)
 	CountUsers() (int64, error)
-	CountUserBySearch(data models.User) (int64, error)
+	CountUserBySearch(data dto.DatatablesReq) (int64, error)
 	DatatablesFind(data dto.DatatablesReq) ([]models.User, error)
+	DatatablesSearch(data dto.DatatablesReq) ([]models.User, error)
 }
 
 func (r *userrepo) FindAll() ([]models.User, error) {
@@ -75,11 +76,11 @@ func (r *userrepo) CountUsers() (int64, error) {
 	return count, err
 }
 
-func (r *userrepo) CountUserBySearch(data models.User) (int64, error) {
+func (r *userrepo) CountUserBySearch(data dto.DatatablesReq) (int64, error) {
 	var count int64
 	var User []models.User
 
-	err := r.db.Model(&User).Where("username = LIKE ?", data.Username).Or("email = LIKE ?", data.Email).Count(&count).Error
+	err := r.db.Model(&User).Where("Username LIKE ?", "%"+data.SearchValue+"%").Or("Email LIKE ?", "%"+data.SearchValue+"%").Count(&count).Error
 	return count, err
 }
 
@@ -88,6 +89,14 @@ func (r *userrepo) DatatablesFind(data dto.DatatablesReq) ([]models.User, error)
 	var column = [4]string{"id", "username", "email"}
 
 	err := r.db.Preload("AuthGroupUser.AuthGroup").Order(column[data.Order0Column] + " " + data.Order0Dir).Limit(data.Length).Offset(data.Start).Find(&User).Error
+	return User, err
+}
+
+func (r *userrepo) DatatablesSearch(data dto.DatatablesReq) ([]models.User, error) {
+	var User []models.User
+	var column = [4]string{"id", "username", "email"}
+
+	err := r.db.Preload("AuthGroupUser.AuthGroup").Where("Username LIKE ?", "%"+data.SearchValue+"%").Or("Email LIKE ?", "%"+data.SearchValue+"%").Order(column[data.Order0Column] + " " + data.Order0Dir).Limit(data.Length).Offset(data.Start).Find(&User).Error
 	return User, err
 }
 

@@ -17,7 +17,7 @@ type AuthService interface {
 	SaveAuthLogin(data dto.AuthLoginReq) (models.AuthLogin, error)
 	AddGroup(data dto.AuthGroupReq) (models.AuthGroup, error)
 	AddPermission(data dto.AuthPermissionReq) (models.AuthPermission, error)
-	Datatables(data dto.DatatablesReq) (int64, []models.User, error)
+	Datatables(data dto.DatatablesReq) (int64, int64, []models.User, error)
 }
 
 func (s *authservice) FindAll() ([]models.User, error) {
@@ -112,11 +112,19 @@ func (s *authservice) AddPermission(data dto.AuthPermissionReq) (models.AuthPerm
 	return _data, err
 }
 
-func (s *authservice) Datatables(data dto.DatatablesReq) (int64, []models.User, error) {
+func (s *authservice) Datatables(data dto.DatatablesReq) (int64, int64, []models.User, error) {
 	// err := db.Model(&User).Count(&count).Error
-	count, _ := s.userrepository.CountUsers()
-	user, err := s.userrepository.DatatablesFind(data)
-	return count, user, err
+	allcount, _ := s.userrepository.CountUsers()
+	if len(data.SearchValue) > 0 {
+		count, _ := s.userrepository.CountUserBySearch(data)
+		user, err := s.userrepository.DatatablesSearch(data)
+		return count, count, user, err
+	} else {
+		count := allcount
+		user, err := s.userrepository.DatatablesFind(data)
+		return allcount, count, user, err
+	}
+
 }
 
 type authservice struct {

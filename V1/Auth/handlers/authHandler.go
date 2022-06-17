@@ -5,6 +5,7 @@ import (
 	"auth/V1/Auth/services"
 	"auth/config"
 	"auth/helper"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -30,6 +31,9 @@ var (
 )
 
 func (h *authHandler) Register(c echo.Context) (err error) {
+
+	a := c.Request().Header
+	fmt.Println(a.Get(""))
 
 	auth := new(dto.AuthRegReq)
 

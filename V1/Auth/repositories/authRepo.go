@@ -16,8 +16,13 @@ type AuthRepo interface {
 	AddPermission(data models.AuthPermission) (models.AuthPermission, error)
 	GetGroupId(data string) (models.AuthGroup, error)
 	FindGroupId(name string) (models.AuthGroup, error)
+	FindPermissionId(name string) (models.AuthPermission, error)
 	AddUserToGroup(data models.AuthGroupUser) (models.AuthGroupUser, error)
 	RemoveUserFromGroup(data models.AuthGroupUser) (models.AuthGroupUser, error)
+	AddUserToPermission(data models.AuthUserPermission) (models.AuthUserPermission, error)
+	RemoveUserFromPermission(data models.AuthUserPermission) (models.AuthUserPermission, error)
+	AddGroupToPermission(data models.AuthGroupPermission) (models.AuthGroupPermission, error)
+	RemoveGroupFromPermission(data models.AuthGroupPermission) (models.AuthGroupPermission, error)
 	CountUsers() (int64, error)
 	CountUserBySearch(data dto.DatatablesReq) (int64, error)
 	DatatablesFind(data dto.DatatablesReq) ([]models.User, error)
@@ -77,6 +82,13 @@ func (r *userrepo) FindGroupId(name string) (models.AuthGroup, error) {
 	return data, err
 }
 
+func (r *userrepo) FindPermissionId(name string) (models.AuthPermission, error) {
+	var data models.AuthPermission
+
+	err := r.db.Where("name = ?", name).Find(&data).Error
+	return data, err
+}
+
 func (r *userrepo) AddUserToGroup(data models.AuthGroupUser) (models.AuthGroupUser, error) {
 	err := r.db.Create(&data).Error
 	return data, err
@@ -84,6 +96,26 @@ func (r *userrepo) AddUserToGroup(data models.AuthGroupUser) (models.AuthGroupUs
 
 func (r *userrepo) RemoveUserFromGroup(data models.AuthGroupUser) (models.AuthGroupUser, error) {
 	err := r.db.Where("user_id = ?", data.UserID).Where("group_id = ?", data.GroupID).Delete(&data).Error
+	return data, err
+}
+
+func (r *userrepo) AddUserToPermission(data models.AuthUserPermission) (models.AuthUserPermission, error) {
+	err := r.db.Create(&data).Error
+	return data, err
+}
+
+func (r *userrepo) RemoveUserFromPermission(data models.AuthUserPermission) (models.AuthUserPermission, error) {
+	err := r.db.Where("user_id = ?", data.UserID).Where("permission_id = ?", data.PermissionID).Delete(&data).Error
+	return data, err
+}
+
+func (r *userrepo) AddGroupToPermission(data models.AuthGroupPermission) (models.AuthGroupPermission, error) {
+	err := r.db.Create(&data).Error
+	return data, err
+}
+
+func (r *userrepo) RemoveGroupFromPermission(data models.AuthGroupPermission) (models.AuthGroupPermission, error) {
+	err := r.db.Where("group_id = ?", data.GroupID).Where("permission_id = ?", data.PermissionID).Delete(&data).Error
 	return data, err
 }
 

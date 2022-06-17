@@ -91,6 +91,13 @@ type (
 		AuthPermission AuthPermission `gorm:"foreignKey:PermissionID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	}
 
+	ApiKey struct {
+		// gorm.Model
+		ID     uint
+		Token  string `gorm:"size:255"`
+		Expire time.Time
+	}
+
 	Tabler interface {
 		TableName() string
 	}
@@ -110,4 +117,5 @@ func MigrateAll(db *gorm.DB) {
 	db.AutoMigrate(&AuthGroupPermission{})
 	db.AutoMigrate(&AuthGroupUser{})
 	db.AutoMigrate(&AuthUserPermission{})
+	db.AutoMigrate(&ApiKey{})
 }

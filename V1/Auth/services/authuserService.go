@@ -17,33 +17,13 @@ type AuthService interface {
 	SaveAuthLogin(data dto.AuthLoginReq) (models.AuthLogin, error)
 	AddGroup(data dto.AuthGroupReq) (models.AuthGroup, error)
 	AddPermission(data dto.AuthPermissionReq) (models.AuthPermission, error)
-	Datatables(data dto.DatatablesReq) (int64, int64, []models.User, error)
 	AddUserToGroup(user_id uint, name string) models.AuthGroupUser
 	RemoveUserFromGroup(user_id uint, name string) models.AuthGroupUser
-}
-
-func (s *authservice) AddUserToGroup(user_id uint, name string) models.AuthGroupUser {
-	group, _ := s.userrepository.FindGroupId(name)
-
-	b := models.AuthGroupUser{
-		UserID:  user_id,
-		GroupID: group.ID,
-	}
-
-	data, _ := s.userrepository.AddUserToGroup(b)
-	return data
-}
-
-func (s *authservice) RemoveUserFromGroup(user_id uint, name string) models.AuthGroupUser {
-	group, _ := s.userrepository.FindGroupId(name)
-
-	b := models.AuthGroupUser{
-		UserID:  user_id,
-		GroupID: group.ID,
-	}
-
-	data, _ := s.userrepository.RemoveUserFromGroup(b)
-	return data
+	AddUserToPermission(user_id uint, name string) models.AuthUserPermission
+	RemoveUserFromPermission(user_id uint, name string) models.AuthUserPermission
+	AddGroupToPermission(permission string, group string) models.AuthGroupPermission
+	RemoveGroupFromPermission(permission string, group string) models.AuthGroupPermission
+	Datatables(data dto.DatatablesReq) (int64, int64, []models.User, error)
 }
 
 func (s *authservice) FindAll() ([]models.User, error) {
@@ -136,6 +116,80 @@ func (s *authservice) AddPermission(data dto.AuthPermissionReq) (models.AuthPerm
 
 	_data, err := s.userrepository.AddPermission(authpermissionModel)
 	return _data, err
+}
+
+func (s *authservice) AddUserToGroup(user_id uint, name string) models.AuthGroupUser {
+	group, _ := s.userrepository.FindGroupId(name)
+
+	b := models.AuthGroupUser{
+		UserID:  user_id,
+		GroupID: group.ID,
+	}
+
+	data, _ := s.userrepository.AddUserToGroup(b)
+	return data
+}
+
+func (s *authservice) RemoveUserFromGroup(user_id uint, name string) models.AuthGroupUser {
+	group, _ := s.userrepository.FindGroupId(name)
+
+	b := models.AuthGroupUser{
+		UserID:  user_id,
+		GroupID: group.ID,
+	}
+
+	data, _ := s.userrepository.RemoveUserFromGroup(b)
+	return data
+}
+
+func (s *authservice) AddUserToPermission(user_id uint, name string) models.AuthUserPermission {
+	permission, _ := s.userrepository.FindPermissionId(name)
+
+	b := models.AuthUserPermission{
+		UserID:       user_id,
+		PermissionID: permission.ID,
+	}
+
+	data, _ := s.userrepository.AddUserToPermission(b)
+	return data
+}
+
+func (s *authservice) RemoveUserFromPermission(user_id uint, name string) models.AuthUserPermission {
+	permission, _ := s.userrepository.FindPermissionId(name)
+
+	b := models.AuthUserPermission{
+		UserID:       user_id,
+		PermissionID: permission.ID,
+	}
+
+	data, _ := s.userrepository.RemoveUserFromPermission(b)
+	return data
+}
+
+func (s *authservice) AddGroupToPermission(permission string, group string) models.AuthGroupPermission {
+	p, _ := s.userrepository.FindPermissionId(permission)
+	g, _ := s.userrepository.FindPermissionId(group)
+
+	b := models.AuthGroupPermission{
+		GroupID:      p.ID,
+		PermissionID: g.ID,
+	}
+
+	data, _ := s.userrepository.AddGroupToPermission(b)
+	return data
+}
+
+func (s *authservice) RemoveGroupFromPermission(permission string, group string) models.AuthGroupPermission {
+	p, _ := s.userrepository.FindPermissionId(permission)
+	g, _ := s.userrepository.FindPermissionId(group)
+
+	b := models.AuthGroupPermission{
+		GroupID:      p.ID,
+		PermissionID: g.ID,
+	}
+
+	data, _ := s.userrepository.RemoveGroupFromPermission(b)
+	return data
 }
 
 func (s *authservice) Datatables(data dto.DatatablesReq) (int64, int64, []models.User, error) {

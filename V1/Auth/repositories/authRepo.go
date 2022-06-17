@@ -8,6 +8,7 @@ import (
 )
 
 type AuthRepo interface {
+	GetApi(name string) models.ApiKey
 	FindAll() ([]models.User, error)
 	IsRegistered(data models.User) (models.User, error)
 	Save(data models.User) (models.User, error)
@@ -27,6 +28,12 @@ type AuthRepo interface {
 	CountUserBySearch(data dto.DatatablesReq) (int64, error)
 	DatatablesFind(data dto.DatatablesReq) ([]models.User, error)
 	DatatablesSearch(data dto.DatatablesReq) ([]models.User, error)
+}
+
+func (r *userrepo) GetApi(apikey string) models.ApiKey {
+	var api models.ApiKey
+	r.db.Where("token = ?", apikey).Find(&api)
+	return api
 }
 
 func (r *userrepo) FindAll() ([]models.User, error) {

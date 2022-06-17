@@ -102,6 +102,13 @@ type (
 		User           User           `gorm:"foreignKey:UserID"`
 	}
 
+	ApiKey struct {
+		// gorm.Model
+		ID     uint
+		Token  string
+		Expire time.Time
+	}
+
 	Tabler interface {
 		TableName() string
 	}

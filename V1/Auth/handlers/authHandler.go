@@ -5,7 +5,6 @@ import (
 	"auth/V1/Auth/services"
 	"auth/config"
 	"auth/helper"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -33,8 +32,22 @@ var (
 func (h *authHandler) Register(c echo.Context) (err error) {
 
 	a := c.Request().Header
-	fmt.Println(a.Get(""))
+	api := a.Get("api-key")
 
+	Api := h.authService.GetApi(api)
+	if Api.ID != 0 {
+		if Api.Expire.Unix() < time.Now().Unix() {
+			return c.JSON(http.StatusBadRequest, echo.Map{
+				"pesan":  "Token sudah kadaluarsa",
+				"status": false,
+			})
+		}
+	} else {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"pesan":  "Token tidak valid",
+			"status": false,
+		})
+	}
 	auth := new(dto.AuthRegReq)
 
 	if err = c.Bind(auth); err != nil {
@@ -135,6 +148,24 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 }
 
 func (h *authHandler) Login(c echo.Context) (err error) {
+
+	a := c.Request().Header
+	api := a.Get("api-key")
+
+	Api := h.authService.GetApi(api)
+	if Api.ID != 0 {
+		if Api.Expire.Unix() < time.Now().Unix() {
+			return c.JSON(http.StatusBadRequest, echo.Map{
+				"pesan":  "Token sudah kadaluarsa",
+				"status": false,
+			})
+		}
+	} else {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"pesan":  "Token tidak valid",
+			"status": false,
+		})
+	}
 
 	auth := new(dto.AuthLoginReq)
 

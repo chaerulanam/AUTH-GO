@@ -10,6 +10,7 @@ import (
 )
 
 type AuthService interface {
+	GetApi(apikey string) models.ApiKey
 	FindAll() ([]models.User, error)
 	Save(data dto.AuthRegReq) (models.User, error)
 	IsRegistered(data dto.AuthRegReq) (models.User, error)
@@ -24,6 +25,11 @@ type AuthService interface {
 	AddGroupToPermission(permission string, group string) models.AuthGroupPermission
 	RemoveGroupFromPermission(permission string, group string) models.AuthGroupPermission
 	Datatables(data dto.DatatablesReq) (int64, int64, []models.User, error)
+}
+
+func (s *authservice) GetApi(apikey string) models.ApiKey {
+	user := s.userrepository.GetApi(apikey)
+	return user
 }
 
 func (s *authservice) FindAll() ([]models.User, error) {

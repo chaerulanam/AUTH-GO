@@ -38,14 +38,22 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 	if Api.ID != 0 {
 		if Api.Expire.Unix() < time.Now().Unix() {
 			return c.JSON(http.StatusBadRequest, echo.Map{
-				"pesan":  "Token sudah kadaluarsa",
-				"status": false,
+				"meta": echo.Map{
+					"code":    http.StatusBadRequest,
+					"status":  "failed",
+					"message": "API-KEY kadaluarsa",
+				},
+				"data": nil,
 			})
 		}
 	} else {
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"pesan":  "Token tidak valid",
-			"status": false,
+			"meta": echo.Map{
+				"code":    http.StatusBadRequest,
+				"status":  "failed",
+				"message": "API-KEY tidak valid",
+			},
+			"data": nil,
 		})
 	}
 	auth := new(dto.AuthRegReq)
@@ -63,12 +71,22 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 		responsError := dto.AuthResponse{
 			Password: "Password tidak sama",
 		}
+		var msgErr = ""
+		if len(responsError.Email) > 0 {
+			msgErr = responsError.Email
+		} else if len(responsError.Username) > 0 {
+			msgErr = responsError.Username
+		} else if len(responsError.Password) > 0 {
+			msgErr = responsError.Password
+		}
 
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"email":    responsError.Email,
-			"username": responsError.Username,
-			"password": responsError.Password,
-			"status":   false,
+			"meta": echo.Map{
+				"code":    http.StatusBadRequest,
+				"status":  "failed",
+				"message": msgErr,
+			},
+			"data": nil,
 		})
 	}
 
@@ -83,12 +101,22 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 			Password: errors["AuthRegReq.Password"],
 		}
 
+		var msgErr = ""
+		if len(responsError.Email) > 0 {
+			msgErr = responsError.Email
+		} else if len(responsError.Username) > 0 {
+			msgErr = responsError.Username
+		} else if len(responsError.Password) > 0 {
+			msgErr = responsError.Password
+		}
+
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"email":    responsError.Email,
-			"username": responsError.Username,
-			"password": responsError.Password,
-			"error":    "Gagal mendaftar",
-			"status":   false,
+			"meta": echo.Map{
+				"code":    http.StatusBadRequest,
+				"status":  "failed",
+				"message": msgErr,
+			},
+			"data": nil,
 		})
 	}
 
@@ -110,12 +138,22 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 			Username: usernameError,
 		}
 
+		var msgErr = ""
+		if len(responsError.Email) > 0 {
+			msgErr = responsError.Email
+		} else if len(responsError.Username) > 0 {
+			msgErr = responsError.Username
+		} else if len(responsError.Password) > 0 {
+			msgErr = responsError.Password
+		}
+
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"email":    responsError.Email,
-			"username": responsError.Username,
-			"password": responsError.Password,
-			"pesan":    "Gagal mendaftar",
-			"status":   false,
+			"meta": echo.Map{
+				"code":    http.StatusBadRequest,
+				"status":  "failed",
+				"message": msgErr,
+			},
+			"data": nil,
 		})
 	}
 
@@ -127,28 +165,36 @@ func (h *authHandler) Register(c echo.Context) (err error) {
 
 	if savedUser.ID == 0 {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"pesan":  "Internal server error",
-			"status": false,
+			"meta": echo.Map{
+				"code":    http.StatusInternalServerError,
+				"status":  "failed",
+				"message": "Internal Server Error",
+			},
+			"data": nil,
 		})
 	}
 
-	responsError := dto.AuthResponse{
+	responsSuccess := dto.AuthResponse{
 		Email:    savedUser.Email,
 		Username: savedUser.Username,
 		Password: "-Rahasia-",
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"email":    responsError.Email,
-		"username": responsError.Username,
-		"password": responsError.Password,
-		"pesan":    "Berhasil mendaftar",
-		"status":   true,
+		"meta": echo.Map{
+			"code":    http.StatusOK,
+			"status":  "success",
+			"message": "Berhasil Mendaftar",
+		},
+		"data": echo.Map{
+			"email":    responsSuccess.Email,
+			"username": responsSuccess.Username,
+			"password": responsSuccess.Password,
+		},
 	})
 }
 
 func (h *authHandler) Login(c echo.Context) (err error) {
-
 	a := c.Request().Header
 	api := a.Get("api-key")
 
@@ -156,14 +202,22 @@ func (h *authHandler) Login(c echo.Context) (err error) {
 	if Api.ID != 0 {
 		if Api.Expire.Unix() < time.Now().Unix() {
 			return c.JSON(http.StatusBadRequest, echo.Map{
-				"pesan":  "Token sudah kadaluarsa",
-				"status": false,
+				"meta": echo.Map{
+					"code":    http.StatusBadRequest,
+					"status":  "failed",
+					"message": "API-KEY kadaluarsa",
+				},
+				"data": nil,
 			})
 		}
 	} else {
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"pesan":  "Token tidak valid",
-			"status": false,
+			"meta": echo.Map{
+				"code":    http.StatusBadRequest,
+				"status":  "failed",
+				"message": "API-KEY tidak valid",
+			},
+			"data": nil,
 		})
 	}
 
@@ -177,8 +231,12 @@ func (h *authHandler) Login(c echo.Context) (err error) {
 
 	if !helper.CheckPasswordHash(auth.Password, IsRegistered.PasswordHash) {
 		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"pesan":  "Username atau password salah",
-			"status": false,
+			"meta": echo.Map{
+				"code":    http.StatusBadRequest,
+				"status":  "failed",
+				"message": "Username atau password salah",
+			},
+			"data": nil,
 		})
 	}
 
@@ -191,8 +249,12 @@ func (h *authHandler) Login(c echo.Context) (err error) {
 		h.authService.SaveAuthLogin(*b)
 
 		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"pesan":  "Akun belum diaktifkan",
-			"status": false,
+			"meta": echo.Map{
+				"code":    http.StatusBadRequest,
+				"status":  "failed",
+				"message": "Akun belum diaktifkan",
+			},
+			"data": nil,
 		})
 	}
 
@@ -221,10 +283,24 @@ func (h *authHandler) Login(c echo.Context) (err error) {
 		return err
 	}
 
+	var al []string
+	for _, name := range IsRegistered.AuthGroupUser {
+		al = append(al, name.AuthGroup.Name)
+	}
+
 	return c.JSON(http.StatusOK, echo.Map{
-		"token":  t,
-		"pesan":  "Berhasil masuk",
-		"status": true,
+		"meta": echo.Map{
+			"code":    http.StatusOK,
+			"status":  "success",
+			"message": "Berhasil masuk",
+		},
+		"data": echo.Map{
+			"token":    t,
+			"email":    IsRegistered.Email,
+			"username": IsRegistered.Username,
+			"user_id":  IsRegistered.ID,
+			"role":     al,
+		},
 	})
 }
 

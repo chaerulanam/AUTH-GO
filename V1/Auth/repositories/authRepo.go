@@ -47,7 +47,7 @@ func (r *userrepo) IsRegistered(data models.User) (models.User, error) {
 
 	var User models.User
 
-	err := r.db.Where("email = ?", data.Email).Or("username = ?", data.Username).Find(&User).Error
+	err := r.db.Preload("AuthGroupUser.AuthGroup").Where("email = ?", data.Email).Or("username = ?", data.Username).Find(&User).Error
 
 	return User, err
 

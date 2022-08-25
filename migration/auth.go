@@ -11,6 +11,7 @@ type (
 		gorm.Model
 		Email          string `gorm:"size:255;index:email,unique"`
 		Username       string `gorm:"size:255;index:username,unique"`
+		Phone          string `gorm:"size:15;index:phone,unique"`
 		PasswordHash   string `gorm:"size:255"`
 		ResetAt        time.Time
 		ResetExpire    time.Time
@@ -52,23 +53,23 @@ type (
 
 	AuthGroup struct {
 		// gorm.Model
-		ID          uint32
+		ID          uint
 		Name        string `gorm:"size:255"`
 		Description string `gorm:"size:255"`
 	}
 
 	AuthPermission struct {
 		// gorm.Model
-		ID          uint32
+		ID          uint
 		Name        string `gorm:"size:255"`
 		Description string `gorm:"size:255"`
 	}
 
 	AuthGroupPermission struct {
 		// gorm.Model
-		ID             uint32
-		GroupID        uint32
-		PermissionID   uint32
+		ID             uint
+		GroupID        uint
+		PermissionID   uint
 		AuthGroup      AuthGroup      `gorm:"foreignKey:GroupID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 		AuthPermission AuthPermission `gorm:"foreignKey:PermissionID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	}
@@ -76,7 +77,7 @@ type (
 	AuthGroupUser struct {
 		// gorm.Model
 		ID        uint
-		GroupID   uint32
+		GroupID   uint
 		UserID    uint
 		User      User      `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 		AuthGroup AuthGroup `gorm:"foreignKey:GroupID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
@@ -85,7 +86,7 @@ type (
 	AuthUserPermission struct {
 		// gorm.Model
 		ID             uint
-		PermissionID   uint32
+		PermissionID   uint
 		UserID         uint
 		User           User           `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 		AuthPermission AuthPermission `gorm:"foreignKey:PermissionID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
@@ -95,6 +96,7 @@ type (
 		// gorm.Model
 		ID     uint
 		Token  string `gorm:"size:255"`
+		Domain string `gorm:"size:255"`
 		Expire time.Time
 	}
 
@@ -103,19 +105,6 @@ type (
 	}
 )
 
-func (User) TableName() string {
-	return "auth_users"
-}
-
-func MigrateAll(db *gorm.DB) {
-	db.AutoMigrate(&User{})
-	db.AutoMigrate(&AuthLogin{})
-	db.AutoMigrate(&AuthResetAttemp{})
-	db.AutoMigrate(&AuthActivationAttemp{})
-	db.AutoMigrate(&AuthGroup{})
-	db.AutoMigrate(&AuthPermission{})
-	db.AutoMigrate(&AuthGroupPermission{})
-	db.AutoMigrate(&AuthGroupUser{})
-	db.AutoMigrate(&AuthUserPermission{})
-	db.AutoMigrate(&ApiKey{})
-}
+// func (User) TableName() string {
+// 	return "auth_users"
+// }

@@ -114,6 +114,6 @@ type (
 	}
 )
 
-func (User) TableName() string {
-	return "auth_users"
-}
+// func (User) TableName() string {
+// 	return "auth_users"
+// }

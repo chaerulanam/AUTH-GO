@@ -1,10 +1,10 @@
 package config
 
 const (
-	APP_NAME  = "AUTH-GO"
+	APP_NAME  = "CELSO"
 	DB_USER   = "root"
 	DB_PASS   = ""
-	DB_NAME   = "auth"
+	DB_NAME   = "celso"
 	DB_SERVER = "127.0.0.1"
 	DB_PORT   = "3306"
 
